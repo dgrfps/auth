@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>DASHBOARD</title>
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.15.1/dist/css/uikit.min.css" />
+
+    <!-- UIkit JS -->
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.15.1/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.15.1/dist/js/uikit-icons.min.js"></script>
+</head>
+<body>
+    <div class="uk-background-primary uk-light">
+        <nav class="uk-navbar-container uk-navbar-transparent" uk-navbar>       
+            <div class="uk-navbar-left uk-padding" style="gap: 9px">
+                <span uk-icon="icon: server;  ratio: 1.5"></span>
+
+                <p class="uk-margin-remove" style="font-size: 1.3rem; color: white;">Dashboard</p>
+            </div>
+            <div class="uk-navbar-right uk-margin-right">
+                <button onclick="logout()" class="uk-button uk-button-default"> 
+                    <span uk-icon="icon: sign-out;  ratio: 1.5"></span>
+                    LOGOUT 
+                </button>
+            </div>
+        </nav>
+    </div>
+    <div id="poparea">
+
+    </div>
+    <div id="register-area" class="register uk-flex uk-flex-center uk-flex-middle">
+        <div class="uk-card uk-card-default uk-card-body uk-card-hover">
+            <h3 class="uk-card-title">REGISTER</h3>
+            <form action="/register" method="POST">
+                <div class="uk-margin">
+                    <div class="uk-inline">
+                        <span class="uk-form-icon" uk-icon="icon: user"></span>
+                        <input name="username" class="uk-input" type="text" placeholder="Name">
+                    </div>
+                </div>
+            
+                <div class="uk-margin">
+                    <div class="uk-inline">
+                        <span class="uk-form-icon uk-form-icon-flip" uk-icon="icon: desktop"></span>
+                        <input name="hwid" class="uk-input" type="text" placeholder="Hwid">
+                    </div>
+                </div>
+
+                <div class="uk-margin">
+                    <div class="uk-inline">
+                        <input style="width: 246px;" class="uk-input uk-form-success" type="submit" value="Register">
+                    </div>
+                </div>
+            
+            </form>
+        </div>
+    </div>
+
+    <style>
+        .uk-notification-message {
+            background: #333333;
+            font-weight: lighter;
+        }
+        .uk-notification-message-primary {
+            color: #ffffff
+        }
+        .uk-notification-message-success {
+            color: #59ff59
+        }
+        .login {
+            height: 600px;
+        }
+        #poparea {
+            padding: 15px;
+        }
+        #poparea p {
+            padding: 0; 
+            margin: 0;
+        }
+        .rmp{
+            margin: 0 !important;
+        }
+    </style>
+
+    <script>
+        const area = document.getElementById('poparea');
+
+        const socket = io();
+        const info = { 
+            normal: 'primary',
+            success: 'success',
+            warning: 'warning',
+            error: 'danger'
+        }
+
+        socket.on('msg', (msg)=> {
+            notify(msg, info.normal, 5)
+        })
+        
+        socket.on('update', ()=>{
+            unlistusers();
+            listusers();
+        })
+
+        socket.emit('getinfo');
+        socket.on('getinfo', (data)=> {
+            let lts = data.latest;
+            let users = data.users;
+            
+            area.innerHTML += `
+            <div class="uk-panel">
+                <p class="uk-text-lead uk-text-small uk-text-emphasis">Latest release version: <span class="uk-badge">${lts}</span></p>
+                <p class="uk-text-lead uk-text-small uk-text-emphasis">Total users in registry: <span class="uk-badge">${users}</span></p>
+            </div>
+            <br>
+            <div class="uk-panel">
+                <button class="uk-button uk-button-primary" onclick="listusers()">List Users</button>
+                <button class="uk-button uk-button-primary" onclick="unlistusers()">UnList Users</button>
+            </div>
+            <ul id="ulist" class="uk-list uk-flex uk-flex-left uk-flex-column">
+                
+            </ul>
+            `            
+        })
+
+        socket.on('listusers', (info)=>{
+            let ulist = document.getElementById('ulist');
+            
+            ulist.innerHTML = '';
+
+            info.map(user => ulist.innerHTML +=`
+                <div class="uk-card uk-card-default uk-card-body">
+                    <h3 class="uk-card-title rmp">${user.name}</h3>
+                    <p>${user.hwid}</p>
+                    <p>Access: ${user.access}</p>
+                    
+                    ${user.access ? 
+                        `<button class="uk-button uk-button-danger" onclick="removeuser('${user.hwid}')">REVOKE ACCESS</button>` : 
+                        `<button class="uk-button uk-button-danger" onclick="adduser('${user.hwid}')">ADD ACCESS</button>`}
+                </div>
+            `)
+        })
+        
+        function notify(msg, info, seconds)
+        {
+            UIkit.notification({
+                message: msg,
+                status: info,
+                pos: 'top-right',
+                timeout: seconds * 1000,
+            });
+        }
+        
+        function logout()
+        {
+            window.location.href = "/logout";
+        }
+
+        function listusers()
+        {
+            socket.emit('listusers');
+        }
+
+        function unlistusers()
+        {
+            let ulist = document.getElementById('ulist');
+            ulist.innerHTML = '';
+        }
+
+        function removeuser(hwid)
+        {
+            socket.emit('removeuser', hwid);
+        }
+
+        function adduser(hwid)
+        {
+            socket.emit('adduser', hwid);
+        }
+    </script>
+</body>
+</html>

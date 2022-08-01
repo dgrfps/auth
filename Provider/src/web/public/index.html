@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>VOID</title>
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.15.1/dist/css/uikit.min.css" />
+
+    <!-- UIkit JS -->
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.15.1/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.15.1/dist/js/uikit-icons.min.js"></script>
+
+</head>
+<body>
+    <div class="uk-background-primary uk-light">
+        <nav class="uk-navbar-container uk-navbar-transparent" uk-navbar>       
+            <div class="uk-navbar-left uk-padding" style="gap: 9px">
+                <span uk-icon="icon: server;  ratio: 1.5"></span>
+
+                <p class="uk-margin-remove" style="font-size: 1.3rem; color: white;">VOID</p>
+            </div>
+        </nav>
+    </div>
+
+    <div id="login-area" class="login uk-flex uk-flex-center uk-flex-middle">
+        <div class="uk-card uk-card-default uk-card-body uk-card-hover">
+            <h3 class="uk-card-title">LOGIN</h3>
+            <form action="/admin" method="POST">
+
+                <div class="uk-margin">
+                    <div class="uk-inline">
+                        <span class="uk-form-icon" uk-icon="icon: user"></span>
+                        <input name="voidlogin" class="uk-input" type="text">
+                    </div>
+                </div>
+            
+                <div class="uk-margin">
+                    <div class="uk-inline">
+                        <span class="uk-form-icon uk-form-icon-flip" uk-icon="icon: lock"></span>
+                        <input name="voidpass" class="uk-input" type="password">
+                    </div>
+                </div>
+
+                <div class="uk-margin">
+                    <div class="uk-inline">
+                        <input style="width: 246px;" class="uk-input uk-form-success" type="submit" value="Login">
+                    </div>
+                </div>
+            
+            </form>
+        </div>
+    </div>
+
+    <style>
+        .uk-notification-message {
+            background: #333333;
+            font-weight: lighter;
+        }
+        .uk-notification-message-primary {
+            color: #ffffff
+        }
+        .uk-notification-message-success {
+            color: #59ff59
+        }
+        .login {
+            height: 600px;
+        }
+    </style>
+
+    <script>
+        const socket = io();
+        const info = { 
+            normal: 'primary',
+            success: 'success',
+            warning: 'warning',
+            error: 'danger'
+        }
+
+        socket.on('logedin', ()=> {
+            notify('Redirecting to panel...', info.success, 5)
+            setTimeout(() => {
+                window.location.href = "/dashboard"
+            }, 1700);
+        })
+
+        function notify(msg, info, seconds)
+        {
+            UIkit.notification({
+                message: msg,
+                status: info,
+                pos: 'top-right',
+                timeout: seconds * 1000,
+            });
+        }        
+    </script>
+</body>
+</html>
