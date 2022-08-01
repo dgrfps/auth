@@ -1,4 +1,6 @@
 const fs = require('fs');
+const path = require('path')
+
 let scrtcfg = JSON.parse(fs.readFileSync(path.join(__dirname, './configs/config.json')));
 let scrt = scrtcfg["secret"];
 let PORT = { api: scrtcfg["port"] }

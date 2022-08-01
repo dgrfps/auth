@@ -1,5 +1,6 @@
 const wsocket = require('./socket.js')
 const path = require('path')
+const fs = require('fs')
 
 const express = require('express')
 const app = express.Router();
@@ -25,6 +26,8 @@ module.exports = function(io)
     app.get('/dashboard', AUTH_MIDDLEWARE, function (req, res) {
         res.sendFile(path.join(__dirname + '/public/dashboard.html'));
     });
+
+    app.get('/', (req, res) => { res.sendFile(path.join(__dirname, "/public/index.html")); })
 
     app.post('/admin', (req, res) => { 
         if (!req.body.voidlogin || !req.body.voidpass) 
