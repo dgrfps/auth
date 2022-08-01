@@ -1,0 +1,11 @@
+{
+  "USERS": [
+    {
+      "hwid": "1234567890",
+      "name": "dev",
+      "access": true,
+      "pass": "admin",
+      "admin": true
+    },
+  ]
+}
